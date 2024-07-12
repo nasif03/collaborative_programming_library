@@ -1,0 +1,7 @@
+stuff to add:
+-number theory stuff
+-segment tree++
+-fenwick tree++
+-hashing
+-dp (knapsack, coin change, lcs, lis)
+-basic graph stuff
