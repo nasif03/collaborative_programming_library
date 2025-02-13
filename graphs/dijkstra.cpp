@@ -1,7 +1,7 @@
+//tested on https://cses.fi/problemset/task/1671/
+
 #include <bits/stdc++.h>
 using namespace std;
-
-//tested on https://cses.fi/problemset/task/1671/
 
 const int inf = 1e9;
 using pii = pair<int, int>;
