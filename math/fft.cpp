@@ -1,7 +1,6 @@
+// tested on https://atcoder.jp/contests/abc392/tasks/abc392_g
 #include <bits/stdc++.h>
 using namespace std;
-
-// tested on https://atcoder.jp/contests/abc392/tasks/abc392_g
 
 const int MAX = 1000006;
 using cd = complex<double>;

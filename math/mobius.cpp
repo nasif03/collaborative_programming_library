@@ -1,7 +1,6 @@
+// tested on https://cses.fi/problemset/task/2417/
 #include <bits/stdc++.h>
 using namespace std;
-
-// tested on https://cses.fi/problemset/task/2417/
 
 const int MAX = 1000006;
 vector<int> mob(MAX), mul(MAX);
