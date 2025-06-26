@@ -17,7 +17,7 @@ struct segment_tree {
 			stree[node] = arr[b];
 			return;
 		}
-		int mid = (b + e) >> 1;
+		int mid = (b + e) / 2;
 		build(arr, 2 * node, b, mid);
 		build(arr, 2 * node + 1, mid + 1, e);
 		stree[node] = merge(stree[2 * node], stree[2 * node + 1]);
@@ -26,33 +26,21 @@ struct segment_tree {
 		stree.resize((n<<2) + 5);
 		build(arr, 1, 0, n - 1);
 	}
-	void set(int node, int b, int e, int ind, T val) {
+	void modify(int node, int b, int e, int ind, T val, bool upd) {
 		if (ind > e or ind < b)
 			return;
 		if (ind <= b and ind >= e) {
-			stree[node] = val;
+			if (upd) stree[node] = merge(stree[node], val);
+			else stree[node] = val;
 			return;
 		}
 		int mid = (b + e) >> 1;
-		set(2 * node, b, mid, ind, val);
-		set(2 * node + 1, mid + 1, e, ind, val);
+		modify(2 * node, b, mid, ind, val, upd);
+		modify(2 * node + 1, mid + 1, e, ind, val, upd);
 		stree[node] = merge(stree[2 * node], stree[2 * node + 1]);
 	}
-	void set(int ind, T val) { set(1, 0, n - 1, ind, val); }
-
-	void update(int node, int b, int e, int ind, T val) {
-		if (ind > e or ind < b)
-			return;
-		if (ind <= b and ind >= e) {
-			stree[node] = merge(stree[node], val);
-			return;
-		}
-		int mid = (b + e) >> 1;
-		update(2 * node, b, mid, ind, val);
-		update(2 * node + 1, mid + 1, e, ind, val);
-		stree[node] = merge(stree[2 * node], stree[2 * node + 1]);
-	}
-	void update(int ind, T val) { update(1, 0, n - 1, ind, val); }
+	void set(int ind, T val) { modify(1, 0, n - 1, ind, val, 0); }
+	void update(int ind, T val) { modify(1, 0, n - 1, ind, val, 1); }
 
 	T query(int node, int b, int e, int l, int r) {
 		if (l > e or r < b)
