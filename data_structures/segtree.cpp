@@ -3,75 +3,72 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-template <class T>
 struct segment_tree {
-	int n;
-	vector<T> stree;
-	function<T(const T &, const T &)> merge;
-	T identity = T();
-	segment_tree(int n, function<T(const T &, const T &)> merge, T identity) : n(n), merge(merge), identity(identity) {
-		stree.resize((n<<2) + 5);
-	}
-	void build(const vector<T> &arr, int node, int b, int e) {
-		if (b == e) {
-			stree[node] = arr[b];
-			return;
-		}
-		int mid = (b + e) / 2;
-		build(arr, 2 * node, b, mid);
-		build(arr, 2 * node + 1, mid + 1, e);
-		stree[node] = merge(stree[2 * node], stree[2 * node + 1]);
-	}
-	segment_tree(const vector<T> &arr, function<T(const T &, const T &)> merge, T identity) : n(arr.size()), merge(merge), identity(identity) {
-		stree.resize((n<<2) + 5);
-		build(arr, 1, 0, n - 1);
-	}
-	void modify(int node, int b, int e, int ind, T val, bool upd) {
-		if (ind > e or ind < b)
-			return;
-		if (ind <= b and ind >= e) {
-			if (upd) stree[node] = merge(stree[node], val);
-			else stree[node] = val;
-			return;
-		}
-		int mid = (b + e) >> 1;
-		modify(2 * node, b, mid, ind, val, upd);
-		modify(2 * node + 1, mid + 1, e, ind, val, upd);
-		stree[node] = merge(stree[2 * node], stree[2 * node + 1]);
-	}
-	void set(int ind, T val) { modify(1, 0, n - 1, ind, val, 0); }
-	void update(int ind, T val) { modify(1, 0, n - 1, ind, val, 1); }
+	typedef int64_t T;
+	T identity = 0;	
+	T merge(T a, T b) { return (a + b); }
 
-	T query(int node, int b, int e, int l, int r) {
-		if (l > e or r < b)
-			return identity;
-		if (l <= b and r >= e)
-			return stree[node];
-		int mid = (b + e) >> 1;
-		T c1 = query(2 * node, b, mid, l, r);
-		T c2 = query(2 * node + 1, mid + 1, e, l, r);
-		return merge(c1, c2);
+	int n;
+	vector<T> t;
+	segment_tree(int n) {
+		t.assign(2 * n, identity);
 	}
-	T query(int l, int r) { return query(1, 0, n - 1, l, r); }
+	segment_tree(const vector<T> &a) {
+		n = a.size();
+		t.assign(2 * n, identity);
+		build(a, 0, 0, n - 1);
+	}
+	void build(const vector<T> &a, int v, int tl, int tr) {
+		if (tl == tr) {
+			t[v] = a[tl];
+			return;
+		}
+		int tm = (tl + tr) / 2;
+		build(a, v + 1, tl, tm);
+		build(a, v + 2 * (tm - tl + 1), tm + 1, tr);
+		t[v] = merge(t[v + 1], t[v + 2 * (tm - tl + 1)]);
+	}
+	T _query(int v, int tl, int tr, int l, int r) {
+		if (l > tr or r < tl) return identity;
+		if (l <= tl and r >= tr) return t[v];
+		int tm = (tl + tr) / 2;
+		T lc = _query(v + 1, tl, tm, l, r);
+		T rc = _query(v + 2 * (tm - tl + 1), tm + 1, tr, l, r);
+		return merge(lc, rc);
+	}
+	T query(int l, int r) {
+		return _query(0, 0, n - 1, l, r);
+	}
+	void _update(int v, int tl, int tr, int pos, T val, bool f) {
+		if (tl == tr) {
+			if (f) t[v] = val;
+			else t[v] = merge(t[v], val);
+			return;
+		}
+		int tm = (tl + tr) / 2;
+		if (pos <= tm) _update(v + 1, tl, tm, pos, val, f);
+		else _update(v + 2 * (tm - tl + 1), tm + 1, tr, pos, val, f);
+		t[v] = merge(t[v + 1], t[v + 2 * (tm - tl + 1)]);
+	}
+	void update(int pos, T val, bool overwrite) {
+		_update(0, 0, n - 1, pos, val, overwrite);
+	}
 };
 
 int32_t main() {
     ios_base::sync_with_stdio(false);
     cin.tie(nullptr);
 
-    int n, q; cin >> n >> q;
+    int n, q;
+	cin >> n >> q;
     vector<int64_t> a(n);
     for (int i = 0; i < n; i++) cin >> a[i];
 
-    segment_tree<int64_t> st(a, [](int64_t a, int64_t b) {return a + b;}, INT64_C(0));
-    while (q--) {
-        int t; cin >> t;
-        if (t == 1) {
-            int k, u; cin >> k >> u;
-            st.set(k - 1, u);
-        } else {
-            int l, r; cin >> l >> r;
-            cout << st.query(l - 1, r - 1) << "\n";
-        }
-    }
+	segment_tree st(a);
+	int t, u, v;
+	while (q--) {
+		cin >> t >> u >> v;
+		if (t == 0) st.update(u, v, false);
+		else cout << st.query(u, v - 1) << '\n';
+	}
 }
